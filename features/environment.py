@@ -39,10 +39,11 @@ def before_scenario(context, scenario):
 
 def after_step(context, step):
     context.events.append(f"{step.status.name}: {step.name}")
-    if step.status.name == "failed":
+    if step.status.has_failed():
         allure.attach(context.page.screenshot(), "Failure screenshot", allure.attachment_type.PNG)
 
 
 def after_scenario(context, scenario):
     allure.attach("\n".join(context.events), "Execution log", allure.attachment_type.TEXT)
+
 

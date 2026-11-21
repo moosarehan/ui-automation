@@ -7,7 +7,7 @@
 <button>Sign in</button></form>
 <section id="catalog" hidden><h2>Supply catalog</h2>
 <label>Search products <input id="query" type="search"></label><ul id="items"></ul>
-<form id="order"><label>Product <select id="product"></select></label>
+<form id="order"><label for="product">Product</label> <select id="product"></select>
 <label>Pickup name <input name="student" required></label><button>Reserve</button></form></section>
 <p role="status"></p>
 <script>
@@ -39,3 +39,4 @@ find('#order').onsubmit = event => {
   find('[role=status]').textContent = 'Reserved ' + find('#product').value + ' for ' + new FormData(event.target).get('student');
 };
 </script></html>
+
