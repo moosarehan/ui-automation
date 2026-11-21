@@ -27,7 +27,7 @@ python -m behave
 npx allure generate allure-results --single-file --clean -o allure-report
 ```
 
-Open `allure-report/index.html` directly. In Suites, select a scenario to inspect its steps and execution log. A failed UI step includes a screenshot. For a fresh local report, point Behave at a new results directory using `python -m behave -f allure_behave.formatter:AllureFormatter -o run-results` and give that directory to Allure. Stop the local service with `docker compose down`.
+Open `allure-report/index.html` directly. In Suites, select a scenario to inspect its steps and execution log. A failed UI step includes a screenshot. For a fresh local report, rename the existing allure-results directory to archive it before running Behave again. The configured Allure formatter creates a new results directory. Stop the local service with `docker compose down`.
 
 ## Run options
 
@@ -104,3 +104,4 @@ python -m http.server 8000 --bind 127.0.0.1 --directory ../campus-supply-deploym
 ```
 
 Open http://127.0.0.1:8000/app/ for the deployed shop or http://127.0.0.1:8000/ for its test report. This keeps both deliverables accessible to project members through the private repository.
+
