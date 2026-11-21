@@ -86,3 +86,9 @@ Track framework and workflow work in issues #1 and #2 and teammate review in #3 
 4. A successful main build publishes the standalone HTML report on the private reports branch. Download the raw HTML and open it locally. The Actions run retains the report and raw results as grading evidence. If a run fails, inspect the job and scenario attachments, update the branch, and rerun CI.
 5. Submit the private repository link, grant the evaluator access as needed, and include the example report. Use the commit history, issue discussion and reviewed PRs as evidence of team contributions.
 
+
+## Submission evidence
+
+The [standalone example report](example-report/index.html) contains the five examples in each of three browsers. Download the HTML file and open it in a browser. The [pull-request run](https://github.com/moosarehan/ui-automation/actions/runs/44897822814) records 15 passing executions for [the reservation selector fix](https://github.com/moosarehan/ui-automation/pull/5). The private [reports branch](https://github.com/moosarehan/ui-automation/tree/reports) holds the report from the latest successful deployment.
+
+Docker is optional on a developer machine. If you use an existing Redis instance, skip the Compose command, set REDIS_URL to your instance, and run the seeder. To practice just login and search, skip Redis and its seeder and use the tag filter above.
