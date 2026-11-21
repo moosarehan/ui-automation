@@ -1,0 +1,34 @@
+name: Merge reviewed change
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Approved pull request number
+        required: true
+        type: number
+permissions:
+  pull-requests: write
+  contents: write
+  actions: write
+jobs:
+  merge:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      PR: ${{ inputs.pr }}
+    steps:
+      - name: Verify approval and passing acceptance run for current revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$PR" =~ ^[0-9]+$ ]]
+          data=$(gh pr view "$PR" --json headRefOid,baseRefName,isCrossRepository,isDraft)
+          jq -e '.baseRefName=="main" and (.isCrossRepository|not) and (.isDraft|not)' <<< "$data"
+          sha=$(jq -r .headRefOid <<< "$data")
+          gh api --paginate "repos/$GH_REPO/pulls/$PR/reviews" --slurp | jq -e --arg sha "$sha" 'add | map(select(.state=="APPROVED" or .state=="CHANGES_REQUESTED" or .state=="DISMISSED")) | group_by(.user.login) | map(last) | any(.state=="APPROVED" and .commit_id==$sha and (.author_association=="OWNER" or .author_association=="COLLABORATOR" or .author_association=="MEMBER")) and all(.state!="CHANGES_REQUESTED")'
+          gh run list --workflow ui.yml --event pull_request --commit "$sha" --limit 1 --json conclusion | jq -e '.[0].conclusion=="success"'
+          gh pr merge "$PR" --merge --match-head-commit "$sha"
+          gh workflow run ui.yml --ref main
+
