@@ -80,7 +80,9 @@ jobs:
         with:
           name: execution-report
           path: published
-      - name: Publish verified report to private reports branch
+      - name: Stage tested Campus Supply application
+        run: cp -R source/app published/app
+      - name: Publish verified application and report to private reports branch
         working-directory: source
         run: |
           if git fetch origin reports; then
@@ -91,7 +93,10 @@ jobs:
           cp ../published/index.html index.html
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
-          git add index.html
+          mkdir -p app
+          cp ../published/app/index.html app/index.html
+          git add app/index.html index.html
           git commit -m "Publish report for ${GITHUB_SHA}" && git push origin reports
+
 
 

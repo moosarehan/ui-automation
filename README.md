@@ -92,3 +92,15 @@ Track framework and workflow work in issues #1 and #2 and teammate review in #3 
 The [standalone example report](example-report/index.html) contains the five examples in each of three browsers. Download the HTML file and open it in a browser. The [pull-request run](https://github.com/moosarehan/ui-automation/actions/runs/44897822814) records 15 passing executions for [the reservation selector fix](https://github.com/moosarehan/ui-automation/pull/5). The private [reports branch](https://github.com/moosarehan/ui-automation/tree/reports) holds the report from the latest successful deployment.
 
 Docker is optional on a developer machine. If you use an existing Redis instance, skip the Compose command, set REDIS_URL to your instance, and run the seeder. To practice just login and search, skip Redis and its seeder and use the tag filter above.
+
+### Deployed application
+
+After all three browser jobs pass on main, the deployment workflow copies the tested application and the generated report into the private reports branch. To inspect the deployed files alongside the main checkout, run:
+
+```sh
+git fetch origin reports
+git worktree add --detach ../campus-supply-deployment origin/reports
+python -m http.server 8000 --bind 127.0.0.1 --directory ../campus-supply-deployment
+```
+
+Open http://127.0.0.1:8000/app/ for the deployed shop or http://127.0.0.1:8000/ for its test report. This keeps both deliverables accessible to project members through the private repository.
