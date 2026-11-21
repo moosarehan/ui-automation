@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Campus Supply</title>
+<h1>Campus Supply</h1>
+<form id="login"><h2>Student sign-in</h2>
+<label>Username <input name="username" required></label>
+<label>Password <input name="password" type="password" required></label>
+<button>Sign in</button></form>
+<section id="catalog" hidden><h2>Supply catalog</h2>
+<label>Search products <input id="query" type="search"></label><ul id="items"></ul>
+<form id="order"><label for="product">Product</label> <select id="product"></select>
+<label>Pickup name <input name="student" required></label><button>Reserve</button></form></section>
+<p role="status"></p>
+<script>
+const products = ['Lab notebook', 'Graph paper', 'Drawing pencil'];
+const find = selector => document.querySelector(selector);
+function filter() {
+  const matches = products.filter(item => item.toLowerCase().includes(find('#query').value.toLowerCase()));
+  find('#items').replaceChildren(...matches.map(item => {
+    const row = document.createElement('li');
+    row.textContent = item;
+    return row;
+  }));
+}
+for (const item of products) find('#product').add(new Option(item, item));
+find('#query').addEventListener('input', filter);
+find('#login').onsubmit = event => {
+  event.preventDefault();
+  const data = new FormData(event.target);
+  const valid = data.get('username') === 'student' && data.get('password') === 'campus-demo';
+  find('[role=status]').textContent = valid ? 'Welcome, student' : 'Sign-in failed';
+  if (valid) {
+    event.target.hidden = true;
+    find('#catalog').hidden = false;
+    filter();
+  }
+};
+find('#order').onsubmit = event => {
+  event.preventDefault();
+  find('[role=status]').textContent = 'Reserved ' + find('#product').value + ' for ' + new FormData(event.target).get('student');
+};
+</script></html>
+
