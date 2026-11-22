@@ -1,20 +1,87 @@
 <!doctype html>
-<html lang="en"><meta charset="utf-8"><title>Campus Supply</title>
-<h1>Campus Supply</h1>
-<form id="login"><h2>Student sign-in</h2>
-<label>Username <input name="username" required></label>
-<label>Password <input name="password" type="password" required></label>
-<button>Sign in</button></form>
-<section id="catalog" hidden><h2>Supply catalog</h2>
-<label>Search products <input id="query" type="search"></label><ul id="items"></ul>
-<form id="order"><label for="product">Product</label> <select id="product"></select>
-<label>Pickup name <input name="student" required></label><button>Reserve</button></form></section>
-<p role="status"></p>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#153e34">
+<title>Campus Supply | Student pickup</title>
+<style>
+:root {color-scheme:light; --ink:#17382e; --green:#194b3b; --paper:#f8f6ee; --line:#d9d8cb; --muted:#526459; --gold:#f6c367}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 "Segoe UI",Arial,sans-serif}
+header,footer,main{width:min(1240px,92%);margin:auto}
+header,footer{display:flex;align-items:center;justify-content:space-between;gap:16px}
+header{height:80px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:11px;font-weight:750;letter-spacing:-.04em;font-size:21px}
+.mark{background:var(--green);color:white;border-radius:9px;padding:5px 8px;font:bold italic 20px Georgia,serif}
+header small,footer{color:var(--muted)}
+main{display:grid;grid-template-columns:1.1fr 1fr;margin:32px auto;min-height:575px;background:#fffef9;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.hero{position:relative;isolation:isolate;overflow:hidden;background-color:#173f34;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:28px 28px;color:#fff9df;padding:clamp(28px,4vw,65px);min-height:560px}
+h1,h2,h3,p{margin:0}
+h1,h2{font-family:Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-.055em;line-height:1.03}
+h1{font-size:clamp(52px,6.4vw,92px)}
+h1 em{color:var(--gold)}
+.hero p{max-width:260px;margin-top:17px;color:#e3e9d8}
+.art{position:absolute;bottom:2%;right:3%;width:350px;height:250px;pointer-events:none;z-index:-1}
+.book,.sheet,.pencil{position:absolute;box-shadow:8px 14px 15px #071e2544}
+.book{width:164px;height:210px;background:linear-gradient(90deg,#cd873a 12%,#eba854 12.5%,#edb363 24%,#f6c378);bottom:5px;left:89px;border-radius:3px 12px 10px 3px;transform:rotate(12deg);border-bottom:5px solid #e8d9b9}
+.book::after{content:"FIELD NOTES";position:absolute;top:41px;left:33px;color:#543b23;border-block:1px solid;padding:7px 0;font:700 15px Georgia,serif;letter-spacing:1px}
+.sheet{width:142px;height:177px;left:41px;bottom:12px;transform:rotate(-18deg);background-color:#c9dfca;background-image:linear-gradient(#729e9155 1px,transparent 1px),linear-gradient(90deg,#729e9155 1px,transparent 1px);background-size:11px 11px}
+.pencil{left:260px;bottom:16px;width:11px;height:171px;transform:rotate(32deg);border-radius:4px 4px 0 0;background:linear-gradient(90deg,#b85d30,#fbaf61 42%,#c87738 46%);border-top:12px solid #ddcdb4}
+.pencil::after{content:"";position:absolute;bottom:-18px;border-left:5.5px solid transparent;border-right:5.5px solid transparent;border-top:18px solid #e2c89c}
+.panel{align-self:center;padding:clamp(27px,4.5vw,72px);min-width:0}
+h2{font-size:clamp(35px,3.4vw,50px)}
+.sub{color:var(--muted);margin:12px 0 26px}
+label{display:block;font-weight:650;font-size:14px;margin:15px 0 6px}
+input,select,button{width:100%;font:inherit;border-radius:8px;min-height:46px}
+input,select{background:white;border:1px solid #aab6ab;padding:10px 12px;color:var(--ink)}
+button{cursor:pointer;border:0;background:var(--green);color:white;font-weight:700;margin-top:21px}
+button:hover{background:#103b2c}
+:focus-visible{outline:3px solid #ae6918;outline-offset:3px}
+details{margin-top:20px;color:var(--muted);font-size:14px}
+summary{cursor:pointer}
+code{color:var(--ink)}
+#status:not(:empty){margin-top:18px;padding:9px 13px;border-left:3px solid var(--green);background:#edf4e9}
+#status.error:not(:empty){background:#fff1e9;border-color:#974221;color:#793617}
+ul{list-style:none;padding:0;margin:12px 0 20px}
+li{padding:9px 12px;border-bottom:1px solid var(--line)}
+li::before{content:"";display:inline-block;width:11px;height:15px;background:var(--gold);border-left:3px solid #915825;margin-right:12px;vertical-align:middle}
+#empty{color:var(--muted);margin-bottom:20px}
+h3{font-size:20px;letter-spacing:-.03em}
+footer{border-top:1px solid var(--line);padding:17px 0;font-size:13px}
+[hidden]{display:none!important}
+@media(max-width:760px){main{grid-template-columns:1fr;margin:18px auto}header{height:62px}.hero{min-height:190px}.hero p{max-width:60%;font-size:14px}.art{transform:scale(.48);transform-origin:bottom right;right:-10px;bottom:5px}h1{font-size:45px}.panel{padding:28px}.signed .hero{display:none}}
+@media(max-width:370px){.art{opacity:.55}.hero p{max-width:65%}}
+</style>
+</head>
+<body>
+<header><div class="brand"><span class="mark" aria-hidden="true">Cs</span> Campus Supply</div><small>Student portal</small></header>
+<main>
+<section class="hero" aria-labelledby="identity">
+<h1 id="identity">Campus<br><em>Supply.</em></h1>
+<p>Find your study supplies and reserve them for campus pickup.</p>
+<div class="art" aria-hidden="true"><div class="sheet"></div><div class="book"></div><div class="pencil"></div></div>
+</section>
+<div class="panel">
+<form id="login"><h2>Student sign-in</h2><p class="sub">Sign in to browse the supply catalog.</p>
+<label for="username">Username</label><input id="username" name="username" autocomplete="username" required>
+<label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required>
+<button>Sign in</button>
+<details><summary>Demo account details</summary><p>Username <code>student</code><br>Password <code>campus-demo</code></p></details></form>
+<section id="catalog" hidden><h2 tabindex="-1">Supply catalog</h2>
+<label for="query">Search products</label><input id="query" type="search" placeholder="Search by product name">
+<ul id="items"></ul><p id="empty" hidden>No supplies match your search.</p>
+<form id="order"><h3>Reserve for pickup</h3><label for="product">Product</label><select id="product"></select>
+<label for="student">Pickup name</label><input id="student" name="student" autocomplete="name" required><button>Reserve</button></form></section>
+<p id="status" role="status"></p></div>
+</main>
+<footer><span>Campus Supply</span><span>Student pickup</span></footer>
 <script>
 const products = ['Lab notebook', 'Graph paper', 'Drawing pencil'];
 const find = selector => document.querySelector(selector);
 function filter() {
   const matches = products.filter(item => item.toLowerCase().includes(find('#query').value.toLowerCase()));
+  find('#empty').hidden = matches.length > 0;
   find('#items').replaceChildren(...matches.map(item => {
     const row = document.createElement('li');
     row.textContent = item;
@@ -28,15 +95,19 @@ find('#login').onsubmit = event => {
   const data = new FormData(event.target);
   const valid = data.get('username') === 'student' && data.get('password') === 'campus-demo';
   find('[role=status]').textContent = valid ? 'Welcome, student' : 'Sign-in failed';
+  find('#status').classList.toggle('error', !valid);
   if (valid) {
+    document.body.classList.add('signed');
     event.target.hidden = true;
     find('#catalog').hidden = false;
     filter();
+    find('#catalog h2').focus();
   }
 };
 find('#order').onsubmit = event => {
   event.preventDefault();
   find('[role=status]').textContent = 'Reserved ' + find('#product').value + ' for ' + new FormData(event.target).get('student');
 };
-</script></html>
+</script></body></html>
+
 
