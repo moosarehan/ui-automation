@@ -39,6 +39,7 @@ def results(context):
         expect(context.catalog.items).to_have_text([expected])
     else:
         expect(context.catalog.items).to_have_count(0)
+        expect(context.catalog.empty_message).to_be_visible()
 
 
 @when('I reserve the Redis order "{key}"')

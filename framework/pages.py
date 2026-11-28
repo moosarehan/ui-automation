@@ -12,6 +12,7 @@ class Catalog:
     def __init__(self, page):
         self.page = page
         self.items = page.get_by_role("listitem")
+        self.empty_message = page.get_by_text("No supplies match your search.")
 
     def search(self, term):
         self.page.get_by_label("Search products").fill(term)
