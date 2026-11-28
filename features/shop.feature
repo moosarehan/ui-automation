@@ -11,6 +11,7 @@ Feature: Student supply reservations
       | account | message          |
       | valid   | Welcome, student |
       | invalid | Sign-in failed   |
+      | unknown | Sign-in failed   |
 
   @search
   Scenario Outline: Search the catalog using <case>

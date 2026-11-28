@@ -1,6 +1,6 @@
 # Campus Supply · Web UI automation
 
-A student signs in, searches a supply catalog, and submits a pickup reservation. Five executable examples cover successful and rejected sign-in, a case-insensitive partial match, an empty result, and a reservation confirmation. Each browser runs the same Gherkin feature.
+A student signs in, searches a supply catalog, and submits a pickup reservation. Six executable examples cover successful sign-in, rejection of a wrong password and of an unknown user, a case-insensitive partial match, an empty result, and a reservation confirmation. Each browser runs the same Gherkin feature.
 
 ## Setup and first run
 
@@ -19,7 +19,7 @@ npm ci
 docker compose up -d
 ```
 
-On Linux runners use `python -m playwright install --with-deps chromium firefox webkit` to install system libraries. The bundled Compose service uses host port 16379. Set `$env:REDIS_URL="redis://localhost:16379/0"` in PowerShell or `export REDIS_URL=redis://localhost:16379/0` in bash. An existing Redis service on localhost:6379 needs no override. Use a dedicated fixture database. Seeding updates keys under `campus-supply:fixture:`.
+On Linux runners use `python -m playwright install --with-deps chromium firefox webkit` to install system libraries. On Windows, WebKit needs the Microsoft Visual C++ Redistributable (x64). If Playwright reports a missing `msvcp140_1.dll`, install it with `winget install Microsoft.VCRedist.2015+.x64`. If PowerShell blocks `Activate.ps1`, run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once. The bundled Compose service uses host port 16379. Set `$env:REDIS_URL="redis://localhost:16379/0"` in PowerShell or `export REDIS_URL=redis://localhost:16379/0` in bash. An existing Redis service on localhost:6379 needs no override. Use a dedicated fixture database. Seeding updates keys under `campus-supply:fixture:`.
 
 ```sh
 python -m framework.seed_redis
@@ -38,7 +38,22 @@ Open `allure-report/index.html` directly. In Suites, select a scenario to inspec
 | BASE_URL | temporary loopback server | URL of another Campus Supply deployment |
 | REDIS_URL | redis://localhost:6379/0 | Fixture service connection |
 
-For Firefox, set `$env:BROWSER="firefox"` in PowerShell or `export BROWSER=firefox` in bash before running Behave. Run `python -m behave --tags=@search` for just the database-backed examples. Run `python -m behave --tags="not @redis"` when working offline without Redis. Use `python -m behave --dry-run -f pretty` to inspect step matching.
+For Firefox, set `$env:BROWSER="firefox"` in PowerShell or `export BROWSER=firefox` in bash before running Behave.
+
+To reproduce the CI report with all three browsers locally, label each browser's results before merging them. Unlabelled runs share test identities, so Allure shows each browser after the first as a retry. Behave appends a command-line `-o` to the configured outfile rather than replacing it, so move the results directory after each run instead. In PowerShell:
+
+```powershell
+Remove-Item -Recurse -Force allure-results, results-* -ErrorAction SilentlyContinue
+foreach ($b in "chromium","firefox","webkit") {
+  $env:BROWSER = $b
+  python -m behave
+  python -m framework.report_browser allure-results $b
+  Rename-Item allure-results "results-$b"
+}
+New-Item -ItemType Directory allure-results | Out-Null
+Copy-Item results-*\* allure-results
+npx.cmd allure generate allure-results --single-file --clean -o allure-report
+``` Run `python -m behave --tags=@search` for just the database-backed examples. Run `python -m behave --tags="not @redis"` when working offline without Redis. Use `python -m behave --dry-run -f pretty` to inspect step matching.
 
 ## Architecture and test data
 
@@ -57,10 +72,10 @@ The local application makes each run independent of third-party uptime. Playwrig
 
 ### Add a case
 
-For a second rejected login, add an Excel row with id `unknown`, username `visitor` and password `demo` to `fixtures/accounts.xlsx`. Append this line to the sign-in Examples table in `features/shop.feature` and run `python -m behave --tags=@login`.
+To check that usernames are case-sensitive, add an Excel row with id `uppercase`, username `STUDENT` and password `campus-demo` to `fixtures/accounts.xlsx`. Append this line to the sign-in Examples table in `features/shop.feature` and run `python -m behave --tags=@login`.
 
 ```gherkin
-      | unknown | Sign-in failed |
+      | uppercase | Sign-in failed |
 ```
 
 For a search case, add a row to the SQLite `searches(id, term, expected)` table and reference its id in the search Examples table. Use an empty expected string for zero matches. For an order, add a named object with product and student fields to `fixtures/reservations.json`, rerun the Redis seeder, and reference its key in a reservation scenario. Add a page object method and step definition when a new workflow requires a new interaction.
